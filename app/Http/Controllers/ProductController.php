@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
   
 use App\Product;
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Validator;
   
 class ProductController extends Controller
 {
@@ -14,20 +16,16 @@ class ProductController extends Controller
      */
     public function index()
     {
-        $products = Product::latest()->paginate(5);
-  
-        return view('products.index',compact('products'))
-            ->with('i', (request()->input('page', 1) - 1) * 5);
-    }
-   
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        return view('products.create');
+        $products = Product::all();
+        $data = $products->toArray();
+
+        $response = [
+            'success' => true,
+            'data' => $data,
+            'message' => 'Products retrieved successfully.'
+        ];
+
+        return response()->json($response, 200);
     }
   
     /**
@@ -38,57 +36,110 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
             'name' => 'required',
-            'detail' => 'required',
+            'detail' => 'required'
         ]);
-  
-        Product::create($request->all());
-   
-        return redirect()->route('products.index')
-                        ->with('success','Product created successfully.');
+
+        if ($validator->fails()) {
+            $response = [
+                'success' => false,
+                'data' => 'Validation Error.',
+                'message' => $validator->errors()
+            ];
+            return response()->json($response, 404);
+        }
+
+        $product = Product::create($input);
+        $data = $product->toArray();
+
+        $response = [
+            'success' => true,
+            'data' => $data,
+            'message' => 'Product stored successfully.'
+        ];
+
+        return response()->json($response, 200);
     }
    
     /**
      * Display the specified resource.
      *
-     * @param  \App\Product  $product
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    public function show($id)
     {
-        return view('products.show',compact('product'));
-    }
-   
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  \App\Product  $product
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Product $product)
-    {
-        return view('products.edit',compact('product'));
+        $product = Product::find($id);
+
+        if (is_null($product)) {
+            $response = [
+                'success' => false,
+                'data' => 'Empty',
+                'message' => 'Product not found.'
+            ];
+            return response()->json($response, 404);
+        }
+
+        $data = $product->toArray();
+        $response = [
+            'success' => true,
+            'data' => $data,
+            'message' => 'Product retrieved successfully.'
+        ];
+
+        return response()->json($response, 200);
     }
   
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Product  $product
+     * @param  int $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    public function update($id, Request $request)
     {
-        $request->validate([
+        $product = Product::find($id);
+        if (is_null($product)) {
+            $response = [
+                'success' => false,
+                'data' => 'Empty',
+                'message' => 'Product not found.'
+            ];
+            return response()->json($response, 404);
+        }
+        $input = $request->all();
+
+        $validator = Validator::make($input, [
             'name' => 'required',
-            'detail' => 'required',
+            'detail' => 'required'
         ]);
-  
-        $product->update($request->all());
-  
-        return redirect()->route('products.index')
-                        ->with('success','Product updated successfully');
+
+        if ($validator->fails()) {
+            $response = [
+                'success' => false,
+                'data' => 'Validation Error.',
+                'message' => $validator->errors()
+            ];
+            return response()->json($response, 404);
+        }
+
+        $product->name = $input['name'];
+        $product->detail = $input['detail'];
+        $product->save();
+
+        $data = $product->toArray();
+
+        $response = [
+            'success' => true,
+            'data' => $data,
+            'message' => 'Product updated successfully.'
+        ];
+
+        return response()->json($response, 200);
     }
   
     /**
@@ -100,8 +151,14 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         $product->delete();
-  
-        return redirect()->route('products.index')
-                        ->with('success','Product deleted successfully');
+        $data = $product->toArray();
+
+        $response = [
+            'success' => true,
+            'data' => $data,
+            'message' => 'Product deleted successfully.'
+        ];
+
+        return response()->json($response, 200);
     }
 }
