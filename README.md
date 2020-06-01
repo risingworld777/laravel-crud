@@ -1,5 +1,9 @@
 # Laravel 6.0 CRUD
 
+<div align="center">
+  <img width="100%" src ="https://github.com/risingworld777/laravel-crud-with-restful-api/blob/master/screen.png"/>
+</div>
+
 ### Installation
 
 1. Clone repository
