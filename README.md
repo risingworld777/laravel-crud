@@ -50,3 +50,12 @@ php artisan serve
 ```
 http://127.0.0.1:8000/products
 ```
+
+### RESTful api
+Checkout [rest_api](https://github.com/risingworld777/laravel-crud-with-restful-api/tree/rest_api) branch.
+
+- Create Product API: Verb: POST, URL: http://localhost:8000/products
+- All Products API: Verb: GET, URL: http://localhost:8000/products/
+- Show Single Product API: Verb: GET, URL: http://localhost:8000/products/1
+- Update Product API: Verb: PUT, URL: http://localhost:8000/products/1
+- Delete Product API: Verb: DELETE, URL: http://localhost:8000/products/1
